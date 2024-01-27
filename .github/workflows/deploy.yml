@@ -1,0 +1,35 @@
+name: deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+        with:
+          php-version: '8.1'
+      - uses: actions/checkout@v3
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+                  echo "Current Location"
+                  pwd
+                  echo "open the app directory"
+                  cd "${{ secrets.APP_PATH }}"
+                  pwd
+                  echo "Get the latest code from repository"
+                  git pull
+                  echo "Do clean setup"
+                  chmod +x ./laravel_clear_setup.sh
+                  ./laravel_clear_setup.sh
